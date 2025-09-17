@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Marvo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            {% if product.image_url %}
+                <img src="{{ url_for('static', filename=product.image_url) }}" 
+                     class="img-fluid rounded" alt="{{ product.name }}">
+            {% else %}
+                <div class="bg-secondary rounded d-flex align-items-center justify-content-center" 
+                     style="height: 400px;">
+                    <i class="fas fa-image fa-5x text-muted"></i>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-6">
+            <h1 class="mb-3" style="color: var(--primary-yellow);">{{ product.name }}</h1>
+            <p class="mb-4" style="color: var(--gray-text);">{{ product.description }}</p>
+            
+            <div class="price mb-4">${{ "%.2f"|format(product.price) }}</div>
+            
+            <form method="POST" action="{{ url_for('add_to_cart') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                
+                {% if product.get_sizes() %}
+                    <div class="mb-3">
+                        <label for="size" class="form-label">الحجم:</label>
+                        <select name="size" id="size" class="form-select">
+                            {% for size in product.get_sizes() %}
+                                <option value="{{ size }}">{{ size }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endif %}
+                
+                {% if product.get_colors() %}
+                    <div class="mb-3">
+                        <label for="color" class="form-label">اللون:</label>
+                        <select name="color" id="color" class="form-select">
+                            {% for color in product.get_colors() %}
+                                <option value="{{ color }}">{{ color }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endif %}
+                
+                <div class="mb-4">
+                    <label for="quantity" class="form-label">الكمية:</label>
+                    <input type="number" name="quantity" id="quantity" 
+                           class="form-control" value="1" min="1" max="{{ product.stock }}">
+                </div>
+                
+                {% if product.stock > 0 %}
+                    <button type="submit" class="btn btn-warning btn-lg">
+                        <i class="fas fa-cart-plus"></i> إضافة للسلة
+                    </button>
+                    <div class="mt-2">
+                        <small class="text-success">متوفر ({{ product.stock }} قطعة)</small>
+                    </div>
+                {% else %}
+                    <button type="button" class="btn btn-secondary btn-lg" disabled>
+                        <i class="fas fa-times"></i> غير متوفر
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
