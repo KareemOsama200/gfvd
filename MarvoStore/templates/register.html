@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}إنشاء حساب جديد - Marvo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3 style="color: var(--primary-yellow);">
+                        <i class="fas fa-user-plus"></i> إنشاء حساب جديد
+                    </h3>
+                    <p class="text-muted">انضم إلى عائلة Marvo واحصل على نقاط مكافآت!</p>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">{{ form.username.label.text }}</label>
+                                {{ form.username(class_="form-control") }}
+                                {% for error in form.username.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">{{ form.email.label.text }}</label>
+                                {{ form.email(class_="form-control") }}
+                                {% for error in form.email.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">{{ form.password.label.text }}</label>
+                                {{ form.password(class_="form-control") }}
+                                {% for error in form.password.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="password2" class="form-label">{{ form.password2.label.text }}</label>
+                                {{ form.password2(class_="form-control") }}
+                                {% for error in form.password2.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">{{ form.first_name.label.text }}</label>
+                                {{ form.first_name(class_="form-control") }}
+                                {% for error in form.first_name.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">{{ form.last_name.label.text }}</label>
+                                {{ form.last_name(class_="form-control") }}
+                                {% for error in form.last_name.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">{{ form.phone.label.text }}</label>
+                                {{ form.phone(class_="form-control") }}
+                                {% for error in form.phone.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="city" class="form-label">{{ form.city.label.text }}</label>
+                                {{ form.city(class_="form-control") }}
+                                {% for error in form.city.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="governorate" class="form-label">{{ form.governorate.label.text }}</label>
+                            {{ form.governorate(class_="form-control") }}
+                            {% for error in form.governorate.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">{{ form.address.label.text }}</label>
+                            {{ form.address(class_="form-control", rows="3") }}
+                            {% for error in form.address.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="referral_code" class="form-label">
+                                {{ form.referral_code.label.text }}
+                                <small class="text-muted">(احصل على 25 نقطة مكافأة)</small>
+                            </label>
+                            {{ form.referral_code(class_="form-control") }}
+                            {% for error in form.referral_code.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-grid">
+                            {{ form.submit(class_="btn btn-warning btn-lg") }}
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-3">
+                        <p class="text-muted">لديك حساب بالفعل؟ 
+                            <a href="{{ url_for('login') }}" style="color: var(--primary-purple);">سجل دخولك هنا</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- مميزات العضوية -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title text-center" style="color: var(--primary-yellow);">
+                        <i class="fas fa-gift"></i> مميزات العضوية
+                    </h5>
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <i class="fas fa-coins fa-2x text-purple mb-2"></i>
+                            <h6>نقاط مكافآت</h6>
+                            <small class="text-muted">اكسب نقطة مع كل جنيه تشتريه</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <i class="fas fa-users fa-2x text-purple mb-2"></i>
+                            <h6>دعوة الأصدقاء</h6>
+                            <small class="text-muted">احصل على 50 نقطة لكل صديق</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <i class="fas fa-shipping-fast fa-2x text-purple mb-2"></i>
+                            <h6>تتبع الطلبات</h6>
+                            <small class="text-muted">تابع طلباتك لحظة بلحظة</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}حسابي - {{ user.get_full_name() }} - Marvo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- معلومات المستخدم -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-5x" style="color: var(--primary-yellow);"></i>
+                    </div>
+                    <h4>{{ user.get_full_name() }}</h4>
+                    <p class="text-muted">@{{ user.username }}</p>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong><i class="fas fa-envelope"></i> البريد الإلكتروني:</strong><br>
+                        <span class="text-muted">{{ user.email }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-phone"></i> الهاتف:</strong><br>
+                        <span class="text-muted">{{ user.phone }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-map-marker-alt"></i> العنوان:</strong><br>
+                        <span class="text-muted">{{ user.address }}<br>{{ user.city }}, {{ user.governorate }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-calendar-alt"></i> عضو منذ:</strong><br>
+                        <span class="text-muted">{{ user.created_at.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- نقاط المكافآت -->
+            <div class="card mt-4">
+                <div class="card-header text-center" style="background: linear-gradient(45deg, var(--primary-purple), var(--primary-blue));">
+                    <h5 class="text-white mb-0">
+                        <i class="fas fa-coins"></i> نقاط المكافآت
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-4 text-warning mb-2">{{ user.points }}</div>
+                    <p class="text-muted">نقطة متاحة</p>
+                    <small class="text-muted">تحصل على نقطة واحدة مع كل جنيه تشتريه</small>
+                </div>
+            </div>
+
+            <!-- كود الإحالة -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6><i class="fas fa-users"></i> كود الإحالة الخاص بك</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="input-group">
+                        <input type="text" class="form-control text-center fw-bold" value="{{ user.referral_code }}" readonly id="referralCode">
+                        <button class="btn btn-outline-warning" type="button" onclick="copyReferralCode()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">احصل على 50 نقطة لكل صديق ينضم</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- طلبات المستخدم -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-shopping-bag"></i> طلباتي ({{ orders|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if orders %}
+                        {% for order in orders %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h6 class="card-title">
+                                                طلب رقم: <span class="text-primary">#{{ order.order_number }}</span>
+                                                {% if order.status == 'pending' %}
+                                                    <span class="badge bg-warning">قيد الانتظار</span>
+                                                {% elif order.status == 'confirmed' %}
+                                                    <span class="badge bg-info">مؤكد</span>
+                                                {% elif order.status == 'shipped' %}
+                                                    <span class="badge bg-primary">تم الشحن</span>
+                                                {% elif order.status == 'delivered' %}
+                                                    <span class="badge bg-success">تم التسليم</span>
+                                                {% elif order.status == 'cancelled' %}
+                                                    <span class="badge bg-danger">ملغي</span>
+                                                {% endif %}
+                                            </h6>
+                                            <p class="text-muted small mb-1">
+                                                <i class="fas fa-calendar"></i> {{ order.created_at.strftime('%d/%m/%Y %I:%M %p') }}
+                                            </p>
+                                            <p class="text-muted small mb-1">
+                                                <i class="fas fa-box"></i> {{ order.items|length }} عنصر
+                                            </p>
+                                            {% if order.donation_amount > 0 %}
+                                                <p class="text-muted small mb-1">
+                                                    <i class="fas fa-heart text-danger"></i> شامل تبرع: {{ order.donation_amount|currency }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <div class="h5 text-warning mb-2">{{ (order.total_amount + order.donation_amount)|currency }}</div>
+                                            <div class="btn-group-vertical w-100" role="group">
+                                                <a href="{{ url_for('order_tracking', order_number=order.order_number) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-search"></i> تتبع الطلب
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">لا توجد طلبات حتى الآن</h5>
+                            <p class="text-muted">ابدأ التسوق لتظهر طلباتك هنا</p>
+                            <a href="{{ url_for('index') }}" class="btn btn-warning">
+                                <i class="fas fa-shopping-bag"></i> ابدأ التسوق
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyReferralCode() {
+    const referralCode = document.getElementById('referralCode');
+    referralCode.select();
+    referralCode.setSelectionRange(0, 99999); // For mobile devices
+    
+    navigator.clipboard.writeText(referralCode.value).then(function() {
+        // Show success message
+        const button = event.target.closest('button');
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.classList.remove('btn-outline-warning');
+        button.classList.add('btn-success');
+        
+        setTimeout(function() {
+            button.innerHTML = originalHTML;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-warning');
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

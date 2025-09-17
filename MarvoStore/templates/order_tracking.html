@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}تتبع الطلب #{{ order.order_number }} - Marvo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <!-- معلومات الطلب الأساسية -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4 class="mb-0">
+                                <i class="fas fa-search"></i> 
+                                تتبع الطلب #{{ order.order_number }}
+                            </h4>
+                        </div>
+                        <div class="col-auto">
+                            {% if order.status == 'pending' %}
+                                <span class="badge bg-warning fs-6">قيد الانتظار</span>
+                            {% elif order.status == 'confirmed' %}
+                                <span class="badge bg-info fs-6">مؤكد</span>
+                            {% elif order.status == 'shipped' %}
+                                <span class="badge bg-primary fs-6">تم الشحن</span>
+                            {% elif order.status == 'delivered' %}
+                                <span class="badge bg-success fs-6">تم التسليم</span>
+                            {% elif order.status == 'cancelled' %}
+                                <span class="badge bg-danger fs-6">ملغي</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong><i class="fas fa-calendar-alt"></i> تاريخ الطلب:</strong><br>
+                                {{ order.created_at.strftime('%d/%m/%Y الساعة %I:%M %p') }}
+                            </p>
+                            <p class="mb-2">
+                                <strong><i class="fas fa-credit-card"></i> طريقة الدفع:</strong><br>
+                                الدفع عند الاستلام
+                            </p>
+                            <p class="mb-0">
+                                <strong><i class="fas fa-phone"></i> رقم الهاتف:</strong><br>
+                                {{ order.phone }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <strong><i class="fas fa-map-marker-alt"></i> عنوان الشحن:</strong><br>
+                                {{ order.shipping_address }}
+                            </p>
+                            {% if order.notes %}
+                                <p class="mb-0">
+                                    <strong><i class="fas fa-sticky-note"></i> الملاحظات:</strong><br>
+                                    <span class="text-muted">{{ order.notes }}</span>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تقدم الطلب -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-truck"></i> حالة الطلب</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-4" style="height: 6px;">
+                        {% set progress = 25 %}
+                        {% if order.status == 'confirmed' %}{% set progress = 50 %}{% endif %}
+                        {% if order.status == 'shipped' %}{% set progress = 75 %}{% endif %}
+                        {% if order.status == 'delivered' %}{% set progress = 100 %}{% endif %}
+                        {% if order.status == 'cancelled' %}{% set progress = 0 %}{% endif %}
+                        
+                        <div class="progress-bar bg-warning" style="width: {{ progress }}%"></div>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <div class="mb-2">
+                                <i class="fas fa-clock fa-2x {% if order.status != 'cancelled' %}text-success{% else %}text-muted{% endif %}"></i>
+                            </div>
+                            <small class="{% if order.status != 'cancelled' %}text-success{% else %}text-muted{% endif %}">
+                                تم الطلب<br>
+                                {% if order.created_at %}
+                                    {{ order.created_at.strftime('%d/%m') }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="col-3">
+                            <div class="mb-2">
+                                <i class="fas fa-check-circle fa-2x {% if order.confirmed_at %}text-success{% else %}text-muted{% endif %}"></i>
+                            </div>
+                            <small class="{% if order.confirmed_at %}text-success{% else %}text-muted{% endif %}">
+                                تم التأكيد<br>
+                                {% if order.confirmed_at %}
+                                    {{ order.confirmed_at.strftime('%d/%m') }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="col-3">
+                            <div class="mb-2">
+                                <i class="fas fa-shipping-fast fa-2x {% if order.shipped_at %}text-success{% else %}text-muted{% endif %}"></i>
+                            </div>
+                            <small class="{% if order.shipped_at %}text-success{% else %}text-muted{% endif %}">
+                                تم الشحن<br>
+                                {% if order.shipped_at %}
+                                    {{ order.shipped_at.strftime('%d/%m') }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="col-3">
+                            <div class="mb-2">
+                                <i class="fas fa-home fa-2x {% if order.delivered_at %}text-success{% else %}text-muted{% endif %}"></i>
+                            </div>
+                            <small class="{% if order.delivered_at %}text-success{% else %}text-muted{% endif %}">
+                                تم التسليم<br>
+                                {% if order.delivered_at %}
+                                    {{ order.delivered_at.strftime('%d/%m') }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- عناصر الطلب -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-box-open"></i> عناصر الطلب ({{ order.items|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in order.items %}
+                        <div class="row align-items-center mb-3 {% if not loop.last %}border-bottom pb-3{% endif %}">
+                            <div class="col-md-2">
+                                {% if item.product.image_url %}
+                                    <img src="{{ url_for('static', filename=item.product.image_url) }}" 
+                                         class="img-fluid rounded" alt="{{ item.product.name }}">
+                                {% else %}
+                                    <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="height: 80px;">
+                                        <i class="fas fa-image text-light"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-1">{{ item.product.name }}</h6>
+                                {% if item.size %}
+                                    <small class="text-muted">المقاس: {{ item.size }}</small><br>
+                                {% endif %}
+                                {% if item.color %}
+                                    <small class="text-muted">اللون: {{ item.color }}</small><br>
+                                {% endif %}
+                                <small class="text-muted">الكمية: {{ item.quantity }}</small>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <span class="text-muted">{{ item.price|currency }}</span>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <strong>{{ (item.price * item.quantity)|currency }}</strong>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ملخص التكلفة -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>المجموع الفرعي:</span>
+                                <span>{{ order.total_amount|currency }}</span>
+                            </div>
+                            {% if order.donation_amount > 0 %}
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><i class="fas fa-heart text-danger"></i> التبرع الخيري:</span>
+                                    <span>{{ order.donation_amount|currency }}</span>
+                                </div>
+                            {% endif %}
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>رسوم التوصيل:</span>
+                                <span class="text-success">مجاناً</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <h5><strong>الإجمالي:</strong></h5>
+                                <h5 class="text-warning"><strong>{{ (order.total_amount + order.donation_amount)|currency }}</strong></h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('profile') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> العودة لحسابي
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-warning ms-2">
+                    <i class="fas fa-shopping-bag"></i> متابعة التسوق
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

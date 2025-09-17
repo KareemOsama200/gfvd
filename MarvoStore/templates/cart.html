@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}سلة التسوق - Marvo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4" style="color: var(--primary-yellow);">
+        <i class="fas fa-shopping-cart"></i> سلة التسوق
+    </h2>
+    
+    {% if cart_items %}
+        <div class="row">
+            <div class="col-lg-8">
+                {% for item in cart_items %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-2">
+                                    {% if item.product.image_url %}
+                                        <img src="{{ url_for('static', filename=item.product.image_url) }}" 
+                                             class="img-fluid rounded" alt="{{ item.product.name }}">
+                                    {% else %}
+                                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center" 
+                                             style="height: 80px;">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <h5 class="card-title">{{ item.product.name }}</h5>
+                                    {% if item.size %}<small class="text-muted">الحجم: {{ item.size }}</small><br>{% endif %}
+                                    {% if item.color %}<small class="text-muted">اللون: {{ item.color }}</small>{% endif %}
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="price">{{ item.product.price|currency }}</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="badge bg-secondary">الكمية: {{ item.quantity }}</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="price">{{ (item.product.price * item.quantity)|currency }}</span>
+                                    <br>
+                                    <form method="POST" action="{{ url_for('remove_from_cart', id=item.id) }}" style="display: inline-block;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-sm btn-danger mt-2">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>ملخص الطلب</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>المجموع الفرعي:</span>
+                            <span class="price">{{ total|currency }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>الشحن:</span>
+                            <span class="text-success">مجاني</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>المجموع:</strong>
+                            <strong class="price">{{ total|currency }}</strong>
+                        </div>
+                        <div class="d-grid">
+                            {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('checkout') }}" class="btn btn-warning btn-lg">
+                                    <i class="fas fa-credit-card"></i> إتمام الطلب
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('login', next=url_for('checkout')) }}" class="btn btn-warning btn-lg">
+                                    <i class="fas fa-sign-in-alt"></i> سجل دخولك لإتمام الطلب
+                                </a>
+                            {% endif %}
+                        </div>
+                        
+                        {% if not current_user.is_authenticated %}
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>لإتمام طلبك:</strong> قم بتسجيل الدخول أو 
+                                <a href="{{ url_for('register') }}" class="alert-link">إنشاء حساب جديد</a>
+                                للحصول على نقاط مكافآت مع كل عملية شراء!
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-5x text-muted mb-3"></i>
+            <h3 class="text-muted">سلة التسوق فارغة</h3>
+            <p class="text-muted">لم تضف أي منتجات لسلة التسوق بعد</p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-shopping-bag"></i> تسوق الآن
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
